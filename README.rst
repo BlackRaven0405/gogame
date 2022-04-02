@@ -12,6 +12,7 @@ Quick Example
 -------------
 
 .. code:: py
+
     import gopy
 
 
