@@ -58,6 +58,9 @@ class Board:
             raise IndexError("Not a valid indice")
         return self._grid[name]
 
+    def __repr__(self):
+        return f"<{self.__class__.__name__} width={self._grid.shape[0]} height={self._grid.shape[1]}>"
+
     @staticmethod
     def other_player(color: Color) -> Color:
         """Returns the other color (black for white and white for black)"""

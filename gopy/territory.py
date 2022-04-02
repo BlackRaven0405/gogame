@@ -60,6 +60,14 @@ class Territory:
         else:
             raise TypeError("Please provide either vertices or both x and y")
 
+    def __repr__(self):
+        return f"<{self.__class__.__name__} board={self._board} size={self.size} color={self._color}>"
+
+    @property
+    def size(self) -> int:
+        """Returns the number of vertices in the territory"""
+        return len(self._vertices)
+
     def clone(self, board: Optional['Board'] = None) -> 'Territory':
         """Returns a deep copy of the territory
 
@@ -201,9 +209,14 @@ class Territory:
         if x is not None and y is not None and color is not None:
             hypothetical_board = np.copy(self._board._grid)
             hypothetical_board[x, y] = color
+            if color == self._color and self.is_touching(x, y):
+                hypothetical_vertices = self._vertices+[(x, y)]
+            else:
+                hypothetical_vertices = self._vertices
         else:
             hypothetical_board = self._board._grid
-        for x, y in self._vertices:
+            hypothetical_vertices = self._vertices
+        for x, y in hypothetical_vertices:
             for i, j in self._board.around(x, y):
                 if hypothetical_board[i, j] is Color.Empty and (i, j) not in free_vertices:
                     free_vertices.append((i, j))

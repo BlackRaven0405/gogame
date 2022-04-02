@@ -30,11 +30,25 @@ def in_game(func):
 class Player(ABC):
     """Represents a go player.
     This class has to be overridden to implement the :func:`play()` method
+
+    :Parameters:
+        name: Optional[:class:`str`]
+            The name of the player (only used to identify it)
     """
-    def __init__(self):
+    def __init__(self, name: Optional[str] = None):
         self._in_game: bool = False
         self._board: Optional[Board] = None
         self._color: Optional[Color] = None
+        self.name = name
+
+    def __str__(self):
+        if self.name:
+            return self.name
+        else:
+            return self.__repr__()
+
+    def __repr__(self):
+        return f"<{self.__class__.__name__} color={self._color} board={self._board}>"
 
     def _initiate(self, board: 'Board', color: Color):
         self._in_game = True
