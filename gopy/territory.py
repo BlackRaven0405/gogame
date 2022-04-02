@@ -124,7 +124,7 @@ class Territory:
             raise ValueError('Territories are not on the same board')
         vertices = []
         if with_vertice:
-            if not isinstance(with_vertice, tuple) or not len(with_vertice) == 2:
+            if not isinstance(with_vertice, (tuple, list, np.ndarray)) or not len(with_vertice) == 2:
                 raise TypeError('Expected 2-len tuple for with_vertices')
             vertices.append(with_vertice)
         for x in territories:

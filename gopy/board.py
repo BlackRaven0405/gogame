@@ -38,7 +38,7 @@ class Board:
     def __init__(self, *, size: Union[int, tuple[int, int]] = 19, show: bool = False):
         if isinstance(size, int):
             height, width = size, size
-        elif isinstance(size, tuple):
+        elif isinstance(size, (tuple, list, np.ndarray)):
             if len(size) == 2:
                 height, width = size
             else:
@@ -234,7 +234,7 @@ class Board:
             if move is None:
                 if self.skip(player=self._next_player):
                     return self.winner()
-            elif isinstance(move, tuple) and len(move) == 2:
+            elif isinstance(move, (tuple, list, np.ndarray)) and len(move) == 2:
                 self.play(*move, color=self._next_player)
             else:
                 raise TypeError("play method must return None or a 2-tuple")
