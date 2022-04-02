@@ -8,6 +8,16 @@ Installing
 
 Coming soon on PyPi
 
+--------------------------
+
+To install from the development sources, do the following:
+
+.. code:: sh
+
+    $ git clone https://github.com/BlackRaven0405/gopy
+    $ cd gopy
+    $ $ python3 -m pip install -U .
+
 Quick Example
 -------------
 
