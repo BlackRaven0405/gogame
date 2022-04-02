@@ -1,4 +1,4 @@
-from gopy import *
+from gogame import *
 import random
 
 

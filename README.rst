@@ -1,37 +1,43 @@
-gopy
-====
+gogame
+======
 
 An easy way to simulate and automize go-like programs.
 
 Installing
 ----------
 
-Coming soon on PyPi
+To install the library from PyPi, you can just run the following command:
 
---------------------------
+.. code:: sh
+
+    # Linux/macOS
+    python3 -m pip install -U gogame
+
+    # Windows
+    py -3 -m pip install -U gogame
 
 To install from the development sources, do the following:
 
 .. code:: sh
 
-    $ git clone https://github.com/BlackRaven0405/gopy
-    $ cd gopy
-    $ $ python3 -m pip install -U .
+    $ git clone https://github.com/BlackRaven0405/gogame
+    $ cd gogame
+    $ python3 -m pip install -U .
 
 Quick Example
 -------------
 
 .. code:: py
 
-    import gopy
+    import gogame
 
 
-    class RandomPlayer(gopy.Player):
+    class RandomPlayer(gogame.Player):
         def play(self):
             return self.playable_moves()[0]
 
 
-    b = gopy.Board()
+    b = gogame.Board()
     p1 = RandomPlayer(name="John")
     p2 = RandomPlayer(name="Smith")
     b.join(p1)

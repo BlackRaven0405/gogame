@@ -1,4 +1,4 @@
-from gopy import *
+from gogame import *
 
 
 def test_two_eyes():

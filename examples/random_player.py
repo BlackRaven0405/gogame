@@ -1,7 +1,7 @@
 # This program is an example of automatic game with two instances of a naive random player
 
 import random
-from gopy import *
+from gogame import *
 
 
 class RandomPlayer(Player):

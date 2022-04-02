@@ -1,7 +1,7 @@
 # Manual play can be used to illustrate go strategies, to show moves of a past game, or to explore possibilities
 # This program display the 30 firsts moves of the first game between AlphaGo and Fan Hui
 
-from gopy import Board, Color
+from gogame import Board, Color
 
 b = Board(show=True)
 b.play(15, 3, color=Color.Black)
