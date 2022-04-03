@@ -24,7 +24,7 @@ setup(
     packages=['gogame'],
     url='https://github.com/BlackRaven0405/gogame',
     keywords='go gogame',
-    python_requires='>=3',
+    python_requires='>=3.6',
     install_requires=[
           'numpy',
       ],
