@@ -1,6 +1,9 @@
 from setuptools import setup
 import re
 
+with open('requirements.txt') as f:
+    requirements = f.read().splitlines()
+
 with open('gogame/__init__.py') as f:
     version = re.search(r'^__version__\s*=\s*[\'"]([^\'"]*)[\'"]', f.read(), re.MULTILINE).group(1)
 
@@ -23,7 +26,5 @@ setup(
     url='https://github.com/BlackRaven0405/gogame',
     keywords='go gogame',
     python_requires='>=3.8',
-    install_requires=[
-          'numpy',
-      ],
+    install_requires=requirements
 )
