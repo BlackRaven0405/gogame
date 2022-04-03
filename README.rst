@@ -50,5 +50,5 @@ You can find more examples in the example directory.
 Links
 -----
 
-- Documentation (coming soon)
+- `Documentation <https://gogame.readthedocs.io/en/latest/>`_
 - `Rules of go <https://en.wikipedia.org/wiki/Rules_of_Go>`_
