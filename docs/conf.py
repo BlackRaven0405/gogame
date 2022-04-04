@@ -14,6 +14,7 @@
 #
 import os
 import sys
+import re
 sys.path.insert(0, os.path.abspath('../'))
 sys.path.append(os.path.abspath('extensions'))
 
@@ -24,9 +25,14 @@ copyright = '2022, BlackRaven0405'
 author = 'BlackRaven0405'
 
 # The short X.Y version
-version = ''
+with open('../gogame/__init__.py') as f:
+    version = re.search(r'^__version__\s*=\s*[\'"]([^\'"]*)[\'"]', f.read(), re.MULTILINE).group(1)
+
+if not version:
+    raise RuntimeError('version is not set')
+
 # The full version, including alpha/beta/rc tags
-release = '0.1'
+release = version
 
 
 # -- General configuration ---------------------------------------------------
@@ -112,7 +118,7 @@ html_static_path = ['_static']
 # -- Options for HTMLHelp output ---------------------------------------------
 
 # Output file base name for HTML help builder.
-htmlhelp_basename = 'gopydoc'
+htmlhelp_basename = 'gogamedoc'
 
 
 # -- Options for LaTeX output ------------------------------------------------
