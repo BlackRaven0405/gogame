@@ -35,10 +35,10 @@ class Player(ABC):
         name: Optional[:class:`str`]
             The name of the player (only used to identify it)
     """
-    def __init__(self, name: Optional[str] = None):
+    def __init__(self, name: Optional[str] = None, color: Optional[Color] = None):
         self._in_game: bool = False
         self._board: Optional[Board] = None
-        self._color: Optional[Color] = None
+        self._color: Optional[Color] = color
         self.name = name
 
     def __str__(self):
@@ -50,10 +50,9 @@ class Player(ABC):
     def __repr__(self):
         return f"<{self.__class__.__name__} color={self._color} board={self._board}>"
 
-    def _initiate(self, board: 'Board', color: Color):
+    def _initiate(self, board: 'Board'):
         self._in_game = True
         self._board = board
-        self._color = color
 
     def _clear_state(self):
         self._in_game = False
@@ -66,6 +65,11 @@ class Player(ABC):
         return self._in_game
 
     @property
+    def color(self) -> Optional[Color]:
+        """Returns the color of the player if any"""
+        return self._color
+
+    @property
     def board(self) -> Optional['Board']:
         """Returns the associated board if any"""
         return self._board
@@ -73,7 +77,7 @@ class Player(ABC):
     @in_game
     def get_board_matrix(self) -> np.ndarray:
         """Returns the current state of the board (0 for empty, 1 for the player, -1 for the opponent)"""
-        return self._board.matrix(self._color)
+        return self._board.matrix()
 
     @in_game
     def playable_moves(self) -> list[tuple[int, int]]:
@@ -86,9 +90,9 @@ class Player(ABC):
         return self._board.vertices(self._color)
 
     @in_game
-    def opponent_vertices(self) -> list[tuple[int, int]]:
+    def get_vertices(self, color: Color) -> list[tuple[int, int]]:
         """Returns a list of all vertices owned by the opponent"""
-        return self._board.vertices(Color.Black if self._color is Color.White else Color.White)
+        return self._board.vertices(color)
 
     @in_game
     def free_vertices(self) -> list[tuple[int, int]]:
@@ -101,9 +105,9 @@ class Player(ABC):
         return self._board.territories(self._color)
 
     @in_game
-    def opponent_territories(self) -> list['Territory']:
+    def get_territories(self, color: Color) -> list['Territory']:
         """Returns a list of territories owned by the opponent"""
-        return self._board.territories(Color.Black if self._color is Color.White else Color.White)
+        return self._board.territories(color)
 
     @in_game
     def territories(self) -> list['Territory']:

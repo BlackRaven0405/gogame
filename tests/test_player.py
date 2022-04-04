@@ -3,13 +3,13 @@ from gogame import *
 
 def test_random_player():
 
-    class RandomPlayer(Player):
+    class SimplePlayer(Player):
         def play(self):
-            l = self.playable_moves()
-            return l[0] if l else None
+            moves = self.playable_moves()
+            return moves[0] if moves else None
 
-    p1 = RandomPlayer()
-    p2 = RandomPlayer()
+    p1 = SimplePlayer()
+    p2 = SimplePlayer()
 
     b = Board()
 

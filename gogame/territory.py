@@ -69,6 +69,10 @@ class Territory:
         """Returns the number of vertices in the territory"""
         return len(self._vertices)
 
+    @property
+    def vertices(self) -> list[tuple[int, int]]:
+        return self._vertices
+
     def clone(self, board: Optional['Board'] = None) -> 'Territory':
         """Returns a deep copy of the territory
 

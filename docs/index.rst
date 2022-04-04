@@ -9,22 +9,38 @@ Welcome to gogame's documentation!
 
 Enums
 ~~~~~
-.. class:: Color
+.. autoclass:: Color
 
    Specify the color of a vertice
 
    :bool(color):
-      Returns False is color is Empty, True otherwise
+      Returns False if color is Empty, True otherwise
 
-   .. attribute:: Black
-
-      The vertice is Black
-   .. attribute:: White
-
-      The vertice is White
    .. attribute:: Empty
 
       The vertice is Empty
+   .. attribute:: Black
+
+      The vertice is owned by Black
+   .. attribute:: White
+
+      The vertice is owned by White
+   .. attribute:: Green
+
+      The vertice is owned by Green
+   .. attribute:: Blue
+
+      The vertice is owned by Blue
+   .. attribute:: Yellow
+
+      The vertice is owned by Yellow
+   .. attribute:: Purple
+
+      The vertice is owned by Purple
+   .. attribute:: Wall
+
+      The vertice is occupied by a Wall
+   .. automethod:: Color.is_player
 
 Player
 ~~~~~~

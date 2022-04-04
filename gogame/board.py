@@ -16,7 +16,10 @@ from .enum import Color
 if TYPE_CHECKING:
     from .player import Player
 
-cmap = ListedColormap(["white", (0.59, 0.44, 0.2), "black"])
+cmap = ListedColormap(["red", (0.59, 0.44, 0.2), "black", "white", "green", "blue", "yellow", "purple"])
+color_list = [c.value for c in Color]
+max_color = max(color_list)
+min_color = min(color_list)
 
 
 class Board:
@@ -24,8 +27,8 @@ class Board:
 
     :Parameters:
         size: Union[:class:`int`, tuple[:class:`int`, :class:`int`]]
-            The size of the board, either an int for a square board, or a tuple (height, width)
-        show: :class:`int`
+            The size of the board, either an int for a square board, or a tuple (height, width). Default to `19x19`
+        show: :class:`bool`
             Indicates if the board should be displayed after each move. Default to `False`
 
     :Notes:
@@ -48,10 +51,21 @@ class Board:
         self.show: bool = show
         self._grid: np.ndarray = np.full((height, width), Color.Empty)
         self._last_grid: np.ndarray = np.copy(self._grid)
-        self._next_player: Color = Color.Black
-        self._prisoners: dict[Color, int] = {Color.Black: 0, Color.White: 0}
+        self._current_player: Optional[Player] = None
         self._territories: list[Territory] = [Territory(x=0, y=0, board=self)]
-        self._players: dict[Color, Optional[Player]] = {Color.Black: None, Color.White: None}
+        self._players: dict[Color, Player] = {}
+        self._prisoners: dict[Color, int] = {}
+
+    @classmethod
+    def circular(cls, size: Union[int, tuple[int, int]] = 19, show: bool = False):
+        board = cls(size=size, show=show)
+        middle_x = board._grid.shape[0]/2
+        middle_y = board._grid.shape[1]/2
+        for x in range(board._grid.shape[0]):
+            for y in range(board._grid.shape[1]):
+                if (((x-middle_x+0.5)/middle_x)**2+((y-middle_y+0.5)/middle_y)**2)>1:
+                    board._grid[x, y] = Color.Wall
+        return board
 
     def __getitem__(self, name: tuple[int, int]) -> Color:
         if not (isinstance(name, tuple) and len(name) == 2):
@@ -61,12 +75,29 @@ class Board:
     def __repr__(self):
         return f"<{self.__class__.__name__} width={self._grid.shape[0]} height={self._grid.shape[1]}>"
 
-    @staticmethod
-    def other_player(color: Color) -> Color:
-        """Returns the other color (black for white and white for black)"""
-        if color is Color.Empty:
-            raise ValueError("Player cannot be Empty")
-        return Color.Black if color is Color.White else Color.White
+    def next_player(self, player: Optional['Player'] = None) -> 'Player':
+        """Returns the player who is next in the rotation of the game
+
+        :Parameters:
+            player: Optional[:class:`Player`]
+                The reference player. Default to the player currently playing.
+
+        :Raises:
+            :class:`ValueError`
+                The player you gave is not on the board or there is no player on the board
+
+        :Returns:
+            :class:`Player`
+                The next player"""
+        if not self._players:
+            raise ValueError("No players are joined")
+        if player:
+            if player not in self._players:
+                raise ValueError(f"{player} is not joined to this board")
+        else:
+            player = self._current_player
+        players = sorted(self._players.values(), key=lambda p: p.color.value)
+        return players[(players.index(player)+1) % len(players)]
 
     def join(self, player: 'Player') -> None:
         """Links a player to the board for a game
@@ -78,14 +109,18 @@ class Board:
         :Raises:
             :class:`ValueError`
                 There are already two players linked"""
-        if not self._players[Color.Black]:
-            self._players[Color.Black] = player
-            player._initiate(self, Color.Black)
-        elif not self._players[Color.White]:
-            self._players[Color.White] = player
-            player._initiate(self, Color.White)
-        else:
-            raise ValueError("Both player are already joined")
+        if len(self._players) > max_color:
+            raise ValueError("Board is already full")
+        if player.color in self._players:
+            raise ValueError("The color of this player is already used")
+        if not self._players:
+            self._current_player = player
+        if player.color is None:
+            player._color = next((c for c in Color if c.value > 0 and c not in self._players), None)
+        self._players[player.color] = player
+        self._prisoners[player.color] = 0
+        player._initiate(board=self)
+
 
     def remove_player(self, player: 'Player') -> None:
         """Unlinks a player from the board
@@ -97,20 +132,18 @@ class Board:
         :Raises:
             :class:`ValueError`
                 This player is not linked to the board"""
-        if player is self._players[Color.Black]:
-            self._players[Color.Black]._clear_state()
-            self._players[Color.Black] = None
-        elif player is self._players[Color.White]:
-            self._players[Color.White] = None
-            self._players[Color.White]._clear_state()
-        else:
+        if player.color not in self._players:
             raise ValueError("Player is not joined")
+        else:
+            del self._players[player.color]
+        if player is self._current_player:
+            self._current_player = list(self._players)[0]
 
     def clear_players(self) -> None:
         """Unlinks all players from the board"""
         for player in self._players.values():
             player._clear_state()
-        self._players = {Color.Black: None, Color.White: None}
+        self._players = {}
 
     @classmethod
     def from_grid(cls, grid: np.ndarray):
@@ -133,8 +166,7 @@ class Board:
         new_board = Board()
         new_board.show = self.show
         new_board._grid = np.copy(self._grid)
-        new_board._next_player = self._next_player
-        new_board._prisoners = dict(self._prisoners)
+        new_board._players = dict(self._players)
         new_board._territories = [t.clone(new_board) for t in self._territories]
         return new_board
 
@@ -142,12 +174,12 @@ class Board:
         self._territories = []
         for x in range(self._grid.shape[0]):
             for y in range(self._grid.shape[1]):
-                if not any((x, y) in t._vertices for t in self._territories):
+                if not any((x, y) in t.vertices for t in self._territories):
                     self._territories.append(Territory(x=x, y=y, board=self))
 
     def display(self) -> None:
         """Displays the board as a numpy matrix"""
-        plt.imshow(self.matrix(Color.Black), cmap=cmap, vmin=-1, vmax=1)
+        plt.imshow(self.matrix(), cmap=cmap, vmin=min_color, vmax=max_color)
         plt.pause(0.1)
 
     def is_playable(self, x: int, y: int, color: Color) -> bool:
@@ -165,6 +197,8 @@ class Board:
         :Returns:
             Indicates if the move is valid
         """
+        if not color.is_player():
+            raise ValueError(f"{color.name} is not a player color")
         if self[x, y] is not Color.Empty:
             return False
         grid = np.copy(self._grid)
@@ -202,7 +236,7 @@ class Board:
         playable = []
         for t in self._territories:
             if t.color is Color.Empty:
-                for x, y in t._vertices:
+                for x, y in t.vertices:
                     if self.is_playable(x, y, color):
                         playable.append((x, y))
         return playable
@@ -224,19 +258,19 @@ class Board:
 
         :Returns:
             The player who wins the game"""
-        if any(player is None for player in self._players):
-            raise ValueError("The board needs two players to be run")
+        if len(self._players) < 2:
+            raise ValueError("The board needs at least two players to be run")
         if max_turn is None and max_duration is None:
             warnings.warn("max_turn and max_duration are both to None, game might run forever")
         c = 0
         starting_time = time.time()
         while (not c or c < max_turn) and (not max_duration or time.time()-starting_time < max_duration):
-            move = self._players[self._next_player].play()
+            move = self._current_player.play()
             if move is None:
-                if self.skip(player=self._next_player):
+                if self.skip(color=self._current_player.color):
                     return self.winner()
             elif isinstance(move, (tuple, list, np.ndarray)) and len(move) == 2:
-                self.play(*move, color=self._next_player)
+                self.play(*move, color=self._current_player.color)
             else:
                 raise TypeError("play method must return None or a 2-tuple")
             c += 1
@@ -256,15 +290,15 @@ class Board:
         :Raises:
             :class:`ValueError`
                 The move is invalid, or it's the wrong player"""
-        if color is not self._next_player:
-            raise ValueError('Wrong player')
+        self._verify_color_before_playing(color)
 
         if not self.is_playable(x, y, color):
             raise ValueError('You cannot play here')
 
         self._last_grid = np.copy(self._grid)
         self._grid[x, y] = color
-        self._next_player = self.other_player(self._next_player)
+        if self._players:
+            self._current_player = self.next_player()
 
         modified = [t for t in self.territories(color) if t.is_touching(x, y)]
         for t in self._territories:
@@ -275,10 +309,10 @@ class Board:
                 self._territories.remove(t)
             self._territories.append(merge_territory)
 
-        for t in self.territories(self.other_player(color)):
-            if not t.freedom:
-                self._territories.remove(t)
-                for i, j in t._vertices:
+        for t in self.territories():
+            if t.color.is_player() and t.color is not color and not t.freedom:
+                t._color = Color.Empty
+                for i, j in t.vertices:
                     self._grid[i, j] = 0
                     self._prisoners[color] += 1
 
@@ -288,19 +322,34 @@ class Board:
         if self.show:
             self.display()
 
-    def skip(self, *, player: Color, show: Optional[bool] = None) -> Optional[bool]:
+    def skip(self, *, color: Color) -> Optional[bool]:
         """Skip a turn manually without using Player object
 
-            :Raises:
-                :class:`ValueError`
-                    It's the wrong player"""
-        if player is not self._next_player:
-            raise ValueError('Wrong player')
+        :Parameters:
+            color: :class:`Color`
+                The color of the move to play
+
+        :Raises:
+            :class:`ValueError`
+                It's the wrong player"""
+
+        self._verify_color_before_playing(color)
+
         if np.all(self._last_grid is self._grid):
             return True
-        self._next_player = self.other_player(player)
-        if show is True or (show is None and self.show):
+        if self._players:
+            self._current_player = self.next_player()
+        if self.show:
             self.display()
+
+    def _verify_color_before_playing(self, color):
+        if not color.is_player():
+            raise ValueError(f"{color.name} is not a player color")
+        if self._players:
+            if color not in self._players:
+                warnings.warn(f'{color.name} is not the color of a joined player')
+            if color is not self._current_player.color:
+                warnings.warn(f'The {color.name} player  is not supposed to play now')
 
     def winner(self) -> 'Player':
         """Returns the current winner of the board by comparing the scores of both player
@@ -308,9 +357,7 @@ class Board:
 
         :Returns:
             The player who currently leads the game"""
-        if self.score(Color.Black) > self.score(Color.White):
-            return self._players[Color.Black]
-        return self._players[Color.White]
+        return max(reversed(self._players.values()), key=lambda p: self.score(p.color))
 
     def around(self,
                x: int,
@@ -351,12 +398,8 @@ class Board:
             The number of prisoners"""
         return self._prisoners[color]
 
-    def matrix(self, color: Color) -> np.ndarray:
-        """Returns the current state of the board as a numpy matrix
-
-        * 0 is an empty vertice
-        * 1 is a vertice the player owns
-        * -1 is a vertice owned by the opponent
+    def matrix(self) -> np.ndarray:
+        """Returns the current state of the board as a numpy matrix to facilitate move calculation
 
         :Parameters:
             color: :class:`Color`
@@ -365,8 +408,7 @@ class Board:
         :Returns:
             The matrix representing the board
         """
-        grid = np.vectorize(lambda x: x.value)(self._grid)
-        return -grid if color is Color.White else grid
+        return np.vectorize(lambda x: x.value)(self._grid)
 
     def territories(self, color: Optional[Color] = None) -> list[Territory]:
         """Returns territories currently on the board. If a color is specified, only territories of the given color are returned
@@ -421,7 +463,7 @@ class Board:
         """Returns the score of a player i.e. the number of vertices belonging to the player + the number of his prisoners
 
         :Parameters:
-            color: :class:`Color`
+            player: :class:`Color`
                 The color of the player
 
         :Returns:
