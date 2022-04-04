@@ -37,6 +37,7 @@ class Territory:
                  ):
         self._board: Board = board
         self._vertices: list[tuple[int, int]]
+        self._freedom: list[tuple[int, int]]
         self._color: Color
 
         if vertices is not None and x is None and y is None:
@@ -50,13 +51,13 @@ class Territory:
             if any(board[v] is not self._color for v in vertices):
                 raise ValueError('Vertices are of different colors')
             self._vertices = vertices
+            self._freedom = self._hypothetical_freedom()
             if not self.is_coherent:
                 raise ValueError('Vertices are not all nearby')
         elif x is not None and y is not None and vertices is None:
-            if board[x, y] is Color.Empty:
-                raise ValueError('Attempting to create a Territory from an empty vertice')
             self._vertices = self._explore(x, y)
             self._color = board[x, y]
+            self._freedom = self._hypothetical_freedom()
         else:
             raise TypeError("Please provide either vertices or both x and y")
 
@@ -130,8 +131,6 @@ class Territory:
         for x in territories:
             vertices.extend(x._vertices)
         new_territory = cls(vertices=list(set(vertices)), board=territories[0]._board)
-        if not new_territory.is_coherent:
-            raise ValueError('Territories are not nearby')
         return new_territory
 
     def is_nearby(self, t: 'Territory') -> bool:
@@ -178,8 +177,22 @@ class Territory:
 
     def _update(self, x: int, y: int, color: Color) -> None:
         if self.is_touching(x, y):
-            if color is self._color and (x, y) not in self._vertices:
-                self._vertices.append((x, y))
+            if color is self._color:
+                if (x, y) not in self._vertices:
+                    self._vertices.append((x, y))
+                    if self._color is not Color.Empty:
+                        if (x, y) in self._freedom:
+                            self._freedom.remove((x, y))
+                        self._freedom.extend([(i, j) for i, j in self._board.around(x, y) if self._board[i,j] is Color.Empty])
+            else:
+                if (x, y) in self._vertices:
+                    self._vertices.remove((x, y))
+                    if self._color is not Color.Empty:
+                        if self._board[x, y] is Color.Empty:
+                            self._freedom.append((x, y))
+                        for i, j in self._board.around(x, y):
+                            if (i, j) in self._freedom and not any((k, l) in self._vertices for k, l in self._board.around(i, j)):
+                                self._freedom.remove((i, j))
 
     @property
     def board(self) -> 'Board':
@@ -196,16 +209,16 @@ class Territory:
 
         :Returns:
             The list of available vertices to expend the territory"""
-        return self._hypothetical_freedom()
+        return self._freedom
 
     def _hypothetical_freedom(self,
                               x: Optional[int] = None,
                               y: Optional[int] = None,
                               color: Optional[Color] = None
                               ) -> list[tuple[int, int]]:
-        free_vertices = []
         if any(k is None for k in [x, y, color]) and not all(k is None for k in [x, y, color]):
             raise TypeError('x, y and color have to be all specified')
+        free_vertices = []
         if x is not None and y is not None and color is not None:
             hypothetical_board = np.copy(self._board._grid)
             hypothetical_board[x, y] = color

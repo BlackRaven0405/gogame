@@ -50,7 +50,7 @@ class Board:
         self._last_grid: np.ndarray = np.copy(self._grid)
         self._next_player: Color = Color.Black
         self._prisoners: dict[Color, int] = {Color.Black: 0, Color.White: 0}
-        self._territories: list[Territory] = []
+        self._territories: list[Territory] = [Territory(x=0, y=0, board=self)]
         self._players: dict[Color, Optional[Player]] = {Color.Black: None, Color.White: None}
 
     def __getitem__(self, name: tuple[int, int]) -> Color:
@@ -142,7 +142,7 @@ class Board:
         self._territories = []
         for x in range(self._grid.shape[0]):
             for y in range(self._grid.shape[1]):
-                if self[x, y] is not Color.Empty and not any((x, y) in t._vertices for t in self._territories):
+                if not any((x, y) in t._vertices for t in self._territories):
                     self._territories.append(Territory(x=x, y=y, board=self))
 
     def display(self) -> None:
@@ -179,7 +179,7 @@ class Board:
             if t := self.get_territory(i, j):
                 if t.color is color:
                     mine.append(t)
-                else:
+                elif t.color is not Color.Empty:
                     opponent.append(t)
         if any(not t._hypothetical_freedom(x, y, color) for t in opponent):
             return True
@@ -200,10 +200,11 @@ class Board:
             A list of all vertices where the player can play
         """
         playable = []
-        for x in range(self._grid.shape[0]):
-            for y in range(self._grid.shape[1]):
-                if self.is_playable(x, y, color):
-                    playable.append((x, y))
+        for t in self._territories:
+            if t.color is Color.Empty:
+                for x, y in t._vertices:
+                    if self.is_playable(x, y, color):
+                        playable.append((x, y))
         return playable
 
     def run_game(self, max_turn: Optional[int] = 1000, max_duration: Optional[int] = None) -> 'Player':
@@ -266,9 +267,9 @@ class Board:
         self._next_player = self.other_player(self._next_player)
 
         modified = [t for t in self.territories(color) if t.is_touching(x, y)]
-        if len(modified) == 1:
-            modified[0]._update(x, y, color)
-        elif len(modified) >= 2:
+        for t in self._territories:
+            t._update(x, y, color)
+        if len(modified) >= 2:
             merge_territory = Territory.merge(*modified, with_vertice=(x, y))
             for t in modified:
                 self._territories.remove(t)
