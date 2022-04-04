@@ -150,7 +150,7 @@ class Board:
         """Initialize a board from an 2D array of :class:`Color`
 
         :Parameters:
-            grid: :class:`np.ndarray`
+            grid: :class:`numpy.ndarray`
                 A 2D array of :class:`Color` representing the state of the board
 
         :Returns:
@@ -191,7 +191,7 @@ class Board:
                 The x coordinate to check
             y: :class:`int`
                 The y coordinate to check
-            color: :class:`int`
+            color: :class:`Color`
                 The color of the player to check
 
         :Returns:
