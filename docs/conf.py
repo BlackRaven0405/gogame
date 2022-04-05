@@ -82,9 +82,11 @@ language = None
 # This pattern also affects html_static_path and html_extra_path.
 exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store']
 
-autodoc_typehints = 'description'  #pass to description
+autodoc_typehints = 'description'
 
 autoclass_content = "both"
+
+add_module_names = False
 
 # The name of the Pygments (syntax highlighting) style to use.
 pygments_style = None
