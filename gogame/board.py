@@ -1,3 +1,4 @@
+from __future__ import annotations
 import numpy as np
 import warnings
 import time
@@ -77,7 +78,7 @@ class Board:
     def __repr__(self):
         return f"<{self.__class__.__name__} width={self._grid.shape[0]} height={self._grid.shape[1]}>"
 
-    def next_player(self, player: Optional['Player'] = None) -> 'Player':
+    def next_player(self, player: Optional[Player] = None) -> Player:
         """Returns the player who is next in the rotation of the game
 
         :param player: The reference player. Default to the player currently playing.
@@ -95,7 +96,7 @@ class Board:
         players = sorted(self._players.values(), key=lambda p: p.color.value)
         return players[(players.index(player)+1) % len(players)]
 
-    def join(self, player: 'Player') -> None:
+    def join(self, player: Player) -> None:
         """Links a player to the board for a game
 
         :param player: The player to link
@@ -113,7 +114,7 @@ class Board:
         self._prisoners[player.color] = 0
         player._initiate(board=self)
 
-    def remove_player(self, player: 'Player') -> None:
+    def remove_player(self, player: Player) -> None:
         """Unlinks a player from the board
 
         :param player: The player to unlink
@@ -217,7 +218,7 @@ class Board:
                         playable.append((x, y))
         return playable
 
-    def run_game(self, max_turn: Optional[int] = 1000, max_duration: Optional[int] = None) -> 'Player':
+    def run_game(self, max_turn: Optional[int] = 1000, max_duration: Optional[int] = None) -> Player:
         """Runs a game on this board between two players. The players have to be linked to the board with :func:`join` before
 
         :param max_turn: The maximum number of move before ending the game
@@ -314,7 +315,7 @@ class Board:
             if color is not self._current_player.color:
                 warnings.warn(f'The {color.name} player  is not supposed to play now')
 
-    def winner(self) -> 'Player':
+    def winner(self) -> Player:
         """Returns the current winner of the board by comparing the scores of both player
         In case of equality, White wins
 

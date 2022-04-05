@@ -1,3 +1,4 @@
+from __future__ import annotations
 from abc import ABC, abstractmethod
 import functools
 from typing import (
@@ -50,7 +51,7 @@ class Player(ABC):
     def __repr__(self):
         return f"<{self.__class__.__name__} color={self._color} board={self._board}>"
 
-    def _initiate(self, board: 'Board'):
+    def _initiate(self, board: Board):
         self._in_game = True
         self._board = board
 
@@ -70,7 +71,7 @@ class Player(ABC):
         return self._color
 
     @property
-    def board(self) -> Optional['Board']:
+    def board(self) -> Optional[Board]:
         """Returns the associated board if any"""
         return self._board
 
@@ -100,17 +101,17 @@ class Player(ABC):
         return self._board.vertices(Color.Empty)
 
     @in_game
-    def my_territories(self) -> list['Territory']:
+    def my_territories(self) -> list[Territory]:
         """Returns a list of territories owned by the player"""
         return self._board.territories(self._color)
 
     @in_game
-    def get_territories(self, color: Color) -> list['Territory']:
+    def get_territories(self, color: Color) -> list[Territory]:
         """Returns a list of territories owned by the opponent"""
         return self._board.territories(color)
 
     @in_game
-    def territories(self) -> list['Territory']:
+    def territories(self) -> list[Territory]:
         """Returns all territories on the board"""
         return self._board.territories()
 

@@ -1,3 +1,4 @@
+from __future__ import annotations
 import numpy as np
 from typing import (
     Optional,
@@ -16,7 +17,7 @@ class Territory:
                  x: Optional[int] = None,
                  y: Optional[int] = None,
                  vertices: Optional[list[tuple[int, int]]] = None,
-                 board: 'Board'
+                 board: Board
                  ):
         """
         :param x: The x coordinate of the vertice to use to initiate the territory. This cannot be mixed with the `vertices` parameter
@@ -69,7 +70,7 @@ class Territory:
     def vertices(self) -> list[tuple[int, int]]:
         return self._vertices
 
-    def clone(self, board: Optional['Board'] = None) -> 'Territory':
+    def clone(self, board: Optional[Board] = None) -> Territory:
         """Returns a deep copy of the territory
 
         :param board: The board to link the new territory, if None it's the same as the current territory
@@ -178,7 +179,7 @@ class Territory:
                                 self._freedom.remove((i, j))
 
     @property
-    def board(self) -> 'Board':
+    def board(self) -> Board:
         """The board associated with the territory"""
         return self._board
 
