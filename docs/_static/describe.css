@@ -1,0 +1,9 @@
+dd {
+    padding-bottom: 10px;
+    padding-top: 10px;
+    margin-bottom: 10px;
+}
+
+dd.field-even{
+    background-color: #bfbfbf;
+}

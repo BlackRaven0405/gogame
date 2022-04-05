@@ -15,6 +15,6 @@ class Color(Enum):
     def __bool__(self):
         return bool(self.value)
 
-    def is_player(self):
+    def is_player(self) -> bool:
         """Check if a color is a player or a special value (empty, wall, etc...)"""
         return self.value>0

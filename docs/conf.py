@@ -53,8 +53,8 @@ extensions = [
 ]
 
 intersphinx_mapping = {
-  'py': ('https://docs.python.org/3', None),
-  'numpy': ('https://numpy.org/doc/stable/', None)
+ # 'py': ('https://docs.python.org/3', None),
+ # 'numpy': ('https://numpy.org/doc/stable/', None)
     
 }
 
@@ -82,7 +82,9 @@ language = None
 # This pattern also affects html_static_path and html_extra_path.
 exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store']
 
-autodoc_typehints = 'none'  #pass to description
+autodoc_typehints = 'description'  #pass to description
+
+autoclass_content = "both"
 
 # The name of the Pygments (syntax highlighting) style to use.
 pygments_style = None
@@ -191,5 +193,10 @@ epub_title = project
 # A list of files that should not be packed into the epub file.
 epub_exclude_files = ['search.html']
 
-
+def fix_sig(app, obj, bound_method):
+    if 'return' in obj.__annotations__ and obj.__annotations__['return'] is None:
+        del obj.__annotations__['return']
 # -- Extension configuration -------------------------------------------------
+
+def setup(app):
+    app.connect("autodoc-before-process-signature", fix_sig)

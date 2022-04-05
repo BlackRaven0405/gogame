@@ -11,30 +11,26 @@ if TYPE_CHECKING:
 
 
 class Territory:
-    """Represents a territory i.e. a list of nearby vertices of the same color
-
-    :Parameters:
-        x: Optional[:class:`int`]
-            The x coordinate of the vertice to use to initiate the territory. This cannot be mixed with the `vertices` parameter
-        y: Optional[:class:`int`]
-            The y coordinate of the vertice to use to initiate the territory. This cannot be mixed with the `vertices` parameter
-        vertices: Optional[list[tuple[:class:`int`, :class:`int`]]]
-            A list of vertices to initiate the territory. This cannot be mixed with the `x` and `y` parameters
-
-    :Notes:
-        When using the `x, y` initializer, the territory is built by exploring the board while with `vertices` it only uses the given vertices without any exploration
-
-    :Raises:
-        :class:`TypeError`
-            Parameters are not of the right type
-        :class:`ValueError`
-            Failed to create the territory with the given parameters"""
+    """Represents a territory i.e. a list of nearby vertices of the same color"""
     def __init__(self, *,
                  x: Optional[int] = None,
                  y: Optional[int] = None,
                  vertices: Optional[list[tuple[int, int]]] = None,
                  board: 'Board'
                  ):
+        """
+        :param x: The x coordinate of the vertice to use to initiate the territory. This cannot be mixed with the `vertices` parameter
+
+        :param y: The y coordinate of the vertice to use to initiate the territory. This cannot be mixed with the `vertices` parameter
+
+        :param vertices: A list of vertices to initiate the territory. This cannot be mixed with the `x` and `y` parameters
+
+        :notes: When using the `x, y` initializer, the territory is built by exploring the board while with `vertices` it only uses the given vertices without any exploration
+
+        :raises TypeError: Parameters are not of the right type
+
+        :raises ValueError: Failed to create the territory with the given parameters
+        """
         self._board: Board = board
         self._vertices: list[tuple[int, int]]
         self._freedom: list[tuple[int, int]]
@@ -76,12 +72,9 @@ class Territory:
     def clone(self, board: Optional['Board'] = None) -> 'Territory':
         """Returns a deep copy of the territory
 
-        :Parameters:
-            board: Optional[:class:`Board`]
-                The board to link the new territory, if None it's the same as the current territory
+        :param board: The board to link the new territory, if None it's the same as the current territory
 
-        :Returns:
-            The copy of the territory
+        :returns: The copy of the territory
         """
         new_territory = Territory(vertices=list(self._vertices), board=board if board else self._board)
         return new_territory
@@ -107,20 +100,15 @@ class Territory:
               ) -> 'Territory':
         """Merge several connected territories into one
 
-        :Parameters:
-            \\*territories: :class:`Territory`
-                An argument list of territories to merge
-            with_vertice: Optional[tuple[:class:`int`, :class:`int`]]
-                A vertice to connect all territories, if none is specified, territories have to be already connected
+        :param territories: An argument list of territories to merge
 
-        :Raises:
-            :class:`TypeError`
-                Parameters aren't of the right type
-            :class:`ValueError`
-                Failed to merge territories
+        :param with_vertice: A vertice to connect all territories, if none is specified, territories have to be already connected
 
-        :Returns:
-            The new territory"""
+        :raises TypeError: Parameters aren't of the right type
+
+        :raises ValueError: Failed to merge territories
+
+        :returns: The new territory"""
         if n := next((t for t in territories if not isinstance(t, Territory)), None):
             raise TypeError(f'Expected value of type Territory, but got {n.__class__.__name__}')
         if len(territories) < 2:
@@ -137,28 +125,22 @@ class Territory:
         new_territory = cls(vertices=list(set(vertices)), board=territories[0]._board)
         return new_territory
 
-    def is_nearby(self, t: 'Territory') -> bool:
+    def is_nearby(self, territory: 'Territory') -> bool:
         """Checks if a territory is connected
 
-        :Parameters:
-            t: :class:`Territory`
-                The territory to check
+        :param territory: The territory to check
 
-        :Returns:
-            Indicate if the territory is connected or not"""
-        return any(t.is_touching(x, y) for x, y in self._vertices)
+        :returns: Indicate if the territory is connected or not"""
+        return any(territory.is_touching(x, y) for x, y in self._vertices)
 
     def is_touching(self, x: int, y: int) -> bool:
         """Checks if a vertice is touching the territory
 
-        :Parameters:
-            x: :class:`int`
-                The x coordinate of the vertice
-            y: :class:`int`
-                The y coordinate of the vertice
+        :param x: The x coordinate of the vertice
 
-        :Returns:
-            Indicate if the vertice is touching the territory"""
+        :param y: The y coordinate of the vertice
+
+        :returns: Indicate if the vertice is touching the territory"""
         for i, j in self._board.around(x, y):
             if (i, j) in self._vertices:
                 return True
@@ -167,16 +149,13 @@ class Territory:
     def includes(self, x: int, y: int, color: Optional[Color] = None) -> bool:
         """Checks if a vertice is included in the territory
 
-        :Parameters:
-            x: :class:`int`
-                The x coordinate of the vertice
-            y: :class:`int`
-                The y coordinate of the vertice
-            color: :class:`Color`
-                The color of the targeted vertice
+        :param x: The x coordinate of the vertice
 
-        :Returns:
-            Indicates if the vertice is included or not"""
+        :param y: The y coordinate of the vertice
+
+        :param color: The color of the targeted vertice
+
+        :returns: Indicates if the vertice is included or not"""
         return (color is None or color is self._color) and (x, y) in self._vertices
 
     def _update(self, x: int, y: int, color: Color) -> None:
@@ -211,8 +190,7 @@ class Territory:
     def freedom(self) -> list[tuple[int, int]]:
         """Calculate the freedom of the territory, i.e. the vertices where it can expend
 
-        :Returns:
-            The list of available vertices to expend the territory"""
+        :returns: The list of available vertices to expend the territory"""
         return self._freedom
 
     def _hypothetical_freedom(self,
