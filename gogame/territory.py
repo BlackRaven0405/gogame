@@ -96,9 +96,9 @@ class Territory:
 
     @classmethod
     def merge(cls,
-              *territories: 'Territory',
+              *territories: Territory,
               with_vertice: Optional[tuple[int, int]] = None
-              ) -> 'Territory':
+              ) -> Territory:
         """Merge several connected territories into one
 
         :param territories: An argument list of territories to merge
@@ -126,7 +126,7 @@ class Territory:
         new_territory = cls(vertices=list(set(vertices)), board=territories[0]._board)
         return new_territory
 
-    def is_nearby(self, territory: 'Territory') -> bool:
+    def is_nearby(self, territory: Territory) -> bool:
         """Checks if a territory is connected
 
         :param territory: The territory to check

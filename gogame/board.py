@@ -56,7 +56,7 @@ class Board:
         self._prisoners: dict[Color, int] = {}
 
     @classmethod
-    def circular(cls, size: Union[int, tuple[int, int]] = 19, show: bool = False) -> 'Board':
+    def circular(cls, size: Union[int, tuple[int, int]] = 19, show: bool = False) -> Board:
         """A quick way to generate a circular board using walls
 
         :param size: An int denoting the diameter of the circle, or a 2-tuple denoting the two diameter of an oval
@@ -134,7 +134,7 @@ class Board:
         self._players = {}
 
     @classmethod
-    def from_grid(cls, grid: np.ndarray):
+    def from_grid(cls, grid: np.ndarray) -> Board:
         """Initialize a board from an 2D array of :class:`Color`
 
         :param grid: A 2D array of :class:`Color` representing the state of the board
@@ -146,7 +146,7 @@ class Board:
         new_board._init_territories()
         return new_board
 
-    def clone(self) -> 'Board':
+    def clone(self) -> Board:
         """Returns a deep copy of the board"""
         new_board = Board()
         new_board.show = self.show

@@ -88,6 +88,8 @@ autoclass_content = "both"
 
 add_module_names = False
 
+autodoc_typehints_format = "short"
+
 # The name of the Pygments (syntax highlighting) style to use.
 pygments_style = None
 
