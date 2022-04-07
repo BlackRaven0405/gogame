@@ -90,6 +90,9 @@ add_module_names = False
 
 autodoc_typehints_format = "short"
 
+autodoc_typehints_types_qualified = "class-only"
+python_use_unqualified_type_names = True
+
 # The name of the Pygments (syntax highlighting) style to use.
 pygments_style = None
 
@@ -105,7 +108,7 @@ html_theme = 'classic'
 # further.  For a list of options available for each theme, see the
 # documentation.
 #
-# html_theme_options = {}
+html_theme_options = {'stickysidebar': "true"}
 
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
@@ -198,7 +201,7 @@ epub_title = project
 epub_exclude_files = ['search.html']
 
 def fix_sig(app, obj, bound_method):
-    if 'return' in obj.__annotations__ and obj.__annotations__['return'] is None:
+    if 'return' in obj.__annotations__ and obj.__annotations__['return'] in {None, 'None'} :
         del obj.__annotations__['return']
 # -- Extension configuration -------------------------------------------------
 
