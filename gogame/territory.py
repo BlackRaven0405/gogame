@@ -42,8 +42,6 @@ class Territory:
                 raise TypeError(f'Expected type list for vertices but got {vertices.__class__.__name__}')
             if not vertices:
                 raise ValueError('Vertices list cannot be empty')
-            if any(board[v] is Color.Empty for v in vertices):
-                raise ValueError('Cannot create a territory with empty vertices')
             self._color = board[vertices[0]]
             if any(board[v] is not self._color for v in vertices):
                 raise ValueError('Vertices are of different colors')
