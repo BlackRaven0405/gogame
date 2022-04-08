@@ -68,6 +68,7 @@ class Board:
             for y in range(board._grid.shape[1]):
                 if (((x-middle_x+0.5)/middle_x)**2+((y-middle_y+0.5)/middle_y)**2)>1:
                     board._grid[x, y] = Color.Wall
+                    board._territories[0]._vertices.remove((x, y))
         return board
 
     def __getitem__(self, name: tuple[int, int]) -> Color:
@@ -89,7 +90,7 @@ class Board:
         if not self._players:
             raise ValueError("No players are joined")
         if player:
-            if player not in self._players:
+            if player not in self._players.values():
                 raise ValueError(f"{player} is not joined to this board")
         else:
             player = self._current_player
@@ -111,7 +112,6 @@ class Board:
         if player.color is None:
             player._color = next((c for c in Color if c.value > 0 and c not in self._players), None)
         self._players[player.color] = player
-        self._prisoners[player.color] = 0
         player._initiate(board=self)
 
     def remove_player(self, player: Player) -> None:
@@ -278,10 +278,12 @@ class Board:
             self._territories.append(merge_territory)
 
         for t in self.territories():
-            if t.color.is_player() and t.color is not color and not t.freedom:
+            if t.color.is_player() and (t.color is not color) and not t.freedom():
                 t._color = Color.Empty
+                if color not in self._prisoners:
+                    self._prisoners[color] = 0
                 for i, j in t.vertices:
-                    self._grid[i, j] = 0
+                    self._grid[i, j] = Color.Empty
                     self._prisoners[color] += 1
 
         if not any(t.includes(x, y, color) for t in self._territories):
@@ -290,21 +292,24 @@ class Board:
         if self.show:
             self.display()
 
-    def skip(self, *, color: Color) -> Optional[bool]:
+    def skip(self, *, color: Color) -> bool:
         """Skip a turn manually without using Player object
 
         :param color: The color of the move to play
 
-        :raises ValueError: It's the wrong player"""
+        :raises ValueError: It's the wrong player
+
+        :returns: True if the game is over because it's the second skip in a row, False otherwise"""
 
         self._verify_color_before_playing(color)
-
-        if np.all(self._last_grid is self._grid):
+        if np.all(self._last_grid == self._grid) and not np.all(self._grid == Color.Empty):
             return True
         if self._players:
             self._current_player = self.next_player()
+        self._last_grid = np.copy(self._grid)
         if self.show:
             self.display()
+        return False
 
     def _verify_color_before_playing(self, color):
         if not color.is_player():
@@ -353,13 +358,13 @@ class Board:
         :param color: The color of the player
 
         :returns: The number of prisoners"""
-        return self._prisoners[color]
+        return self._prisoners.get(color, 0)
 
     def matrix(self) -> np.ndarray:
         """Returns the current state of the board as a numpy matrix to facilitate move calculation
 
         :returns: The matrix representing the board"""
-        return np.vectorize(lambda x: x.value)(self._grid)
+        return np.vectorize(lambda c: c.value)(self._grid)
 
     def territories(self, color: Optional[Color] = None) -> list[Territory]:
         """Returns territories currently on the board. If a color is specified, only territories of the given color are returned
@@ -407,4 +412,4 @@ class Board:
         :parameters player: The color of the player
 
         :returns: The score of the given player"""
-        return self._prisoners[color] + np.count_nonzero(self._grid is color)
+        return self._prisoners.get(color, 0) + np.count_nonzero(self._grid == color)

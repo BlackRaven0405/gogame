@@ -46,13 +46,13 @@ class Territory:
             if any(board[v] is not self._color for v in vertices):
                 raise ValueError('Vertices are of different colors')
             self._vertices = vertices
-            self._freedom = self._hypothetical_freedom()
+            self._freedom = self._hypothetical_freedom() if self._color is not Color.Empty else []
             if not self.is_coherent:
                 raise ValueError('Vertices are not all nearby')
         elif x is not None and y is not None and vertices is None:
             self._vertices = self._explore(x, y)
             self._color = board[x, y]
-            self._freedom = self._hypothetical_freedom()
+            self._freedom = self._hypothetical_freedom() if self._color is not Color.Empty else []
         else:
             raise TypeError("Please provide either vertices or both x and y")
 
@@ -175,6 +175,9 @@ class Territory:
                         for i, j in self._board.around(x, y):
                             if (i, j) in self._freedom and not any((k, l) in self._vertices for k, l in self._board.around(i, j)):
                                 self._freedom.remove((i, j))
+                else:
+                    if (x, y) in self._freedom:
+                        self._freedom.remove((x, y))
 
     @property
     def board(self) -> Board:
