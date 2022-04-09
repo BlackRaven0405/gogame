@@ -17,7 +17,7 @@ from .enum import Color
 if TYPE_CHECKING:
     from .player import Player
 
-cmap = ListedColormap(["red", (0.59, 0.44, 0.2), "black", "white", "green", "blue", "yellow", "purple"])
+cmap = ListedColormap(["red", (0.59, 0.44, 0.2), "black", "white", "green", "blue", "yellow", "purple", "pink", "orange"])
 color_list = [c.value for c in Color]
 max_color = max(color_list)
 min_color = min(color_list)
@@ -62,11 +62,11 @@ class Board:
         :param size: An int denoting the diameter of the circle, or a 2-tuple denoting the two diameter of an oval
         :param show: Indicates if the board should be displayed after each move"""
         board = cls(size=size, show=show)
-        middle_x = board._grid.shape[0]/2
-        middle_y = board._grid.shape[1]/2
+        middle_x = board._grid.shape[0] / 2
+        middle_y = board._grid.shape[1] / 2
         for x in range(board._grid.shape[0]):
             for y in range(board._grid.shape[1]):
-                if (((x-middle_x+0.5)/middle_x)**2+((y-middle_y+0.5)/middle_y)**2)>1:
+                if (((x - middle_x + 0.5) / middle_x)**2 + ((y - middle_y + 0.5) / middle_y)**2) > 1:
                     board._grid[x, y] = Color.Wall
                     board._territories[0]._vertices.remove((x, y))
         return board
@@ -95,7 +95,7 @@ class Board:
         else:
             player = self._current_player
         players = sorted(self._players.values(), key=lambda p: p.color.value)
-        return players[(players.index(player)+1) % len(players)]
+        return players[(players.index(player) + 1) % len(players)]
 
     def join(self, player: Player) -> None:
         """Links a player to the board for a game
@@ -125,7 +125,7 @@ class Board:
         else:
             del self._players[player.color]
         if player is self._current_player:
-            self._current_player = list(self._players)[0]
+            self._current_player = list(self._players.values())[0]
 
     def clear_players(self) -> None:
         """Unlinks all players from the board"""
@@ -236,7 +236,7 @@ class Board:
             warnings.warn("max_turn and max_duration are both to None, game might run forever")
         c = 0
         starting_time = time.time()
-        while (not c or c < max_turn) and (not max_duration or time.time()-starting_time < max_duration):
+        while (not c or c < max_turn) and (not max_duration or time.time() - starting_time < max_duration):
             move = self._current_player.play()
             if move is None:
                 if self.skip(color=self._current_player.color):

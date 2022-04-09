@@ -53,9 +53,8 @@ extensions = [
 ]
 
 intersphinx_mapping = {
-  'py': ('https://docs.python.org/3', None),
-  'numpy': ('https://numpy.org/doc/stable/', None)
-    
+    'py': ('https://docs.python.org/3', None),
+    'numpy': ('https://numpy.org/doc/stable/', None)
 }
 
 # Add any paths that contain templates here, relative to this directory.
@@ -200,10 +199,12 @@ epub_title = project
 # A list of files that should not be packed into the epub file.
 epub_exclude_files = ['search.html']
 
+
 def fix_sig(app, obj, bound_method):
-    if 'return' in obj.__annotations__ and obj.__annotations__['return'] in {None, 'None'} :
+    if 'return' in obj.__annotations__ and obj.__annotations__['return'] in {None, 'None'}:
         del obj.__annotations__['return']
 # -- Extension configuration -------------------------------------------------
+
 
 def setup(app):
     app.connect("autodoc-before-process-signature", fix_sig)

@@ -165,7 +165,7 @@ class Territory:
                     if self._color is not Color.Empty:
                         if (x, y) in self._freedom:
                             self._freedom.remove((x, y))
-                        self._freedom.extend([(i, j) for i, j in self._board.around(x, y) if self._board[i,j] is Color.Empty])
+                        self._freedom.extend([(i, j) for i, j in self._board.around(x, y) if self._board[i, j] is Color.Empty])
             else:
                 if (x, y) in self._vertices:
                     self._vertices.remove((x, y))
@@ -207,7 +207,7 @@ class Territory:
             hypothetical_board = np.copy(self._board._grid)
             hypothetical_board[x, y] = color
             if color == self._color and self.is_touching(x, y):
-                hypothetical_vertices = self._vertices+[(x, y)]
+                hypothetical_vertices = self._vertices + [(x, y)]
             else:
                 hypothetical_vertices = self._vertices
         else:
