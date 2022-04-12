@@ -20,17 +20,18 @@ class Territory:
                  board: Board
                  ):
         """
-        :param x: The x coordinate of the vertice to use to initiate the territory. This cannot be mixed with the `vertices` parameter
+        Note:
+            When using the `x, y` initializer, the territory is built by exploring the board while with `vertices` it only uses the given vertices without any exploration
 
-        :param y: The y coordinate of the vertice to use to initiate the territory. This cannot be mixed with the `vertices` parameter
+        Args:
+            x: The x coordinate of the vertice to use to initiate the territory. This cannot be mixed with the `vertices` parameter
+            y: The y coordinate of the vertice to use to initiate the territory. This cannot be mixed with the `vertices` parameter
+            vertices: A list of vertices to initiate the territory. This cannot be mixed with the `x` and `y` parameters
+            board: The board associated with the territory
 
-        :param vertices: A list of vertices to initiate the territory. This cannot be mixed with the `x` and `y` parameters
-
-        :notes: When using the `x, y` initializer, the territory is built by exploring the board while with `vertices` it only uses the given vertices without any exploration
-
-        :raises TypeError: Parameters are not of the right type
-
-        :raises ValueError: Failed to create the territory with the given parameters
+        Raises:
+            TypeError: Parameters are not of the right type
+            ValueError: Failed to create the territory with the given parameters
         """
         self._board: Board = board
         self._vertices: list[tuple[int, int]]
@@ -71,9 +72,11 @@ class Territory:
     def clone(self, board: Optional[Board] = None) -> Territory:
         """Returns a deep copy of the territory
 
-        :param board: The board to link the new territory, if None it's the same as the current territory
+        Args:
+            board: The board to link the new territory, if None it's the same as the current territory
 
-        :returns: The copy of the territory
+        Returns:
+             The copy of the territory
         """
         new_territory = Territory(vertices=list(self._vertices), board=board if board else self._board)
         return new_territory
@@ -99,15 +102,16 @@ class Territory:
               ) -> Territory:
         """Merge several connected territories into one
 
-        :param territories: An argument list of territories to merge
+        Args:
+            territories: An argument list of territories to merge
+            with_vertice: A vertice to connect all territories, if none is specified, territories have to be already connected
 
-        :param with_vertice: A vertice to connect all territories, if none is specified, territories have to be already connected
+        Raises:
+            TypeError: Parameters aren't of the right type
+            ValueError: Failed to merge territories
 
-        :raises TypeError: Parameters aren't of the right type
-
-        :raises ValueError: Failed to merge territories
-
-        :returns: The new territory"""
+        Returns:
+             The new territory"""
         if n := next((t for t in territories if not isinstance(t, Territory)), None):
             raise TypeError(f'Expected value of type Territory, but got {n.__class__.__name__}')
         if len(territories) < 2:
@@ -127,19 +131,22 @@ class Territory:
     def is_nearby(self, territory: Territory) -> bool:
         """Checks if a territory is connected
 
-        :param territory: The territory to check
+        Args:
+            territory: The territory to check
 
-        :returns: Indicate if the territory is connected or not"""
+        Returns:
+             Indicate if the territory is connected or not"""
         return any(territory.is_touching(x, y) for x, y in self._vertices)
 
     def is_touching(self, x: int, y: int) -> bool:
         """Checks if a vertice is touching the territory
 
-        :param x: The x coordinate of the vertice
+        Args:
+            x: The x coordinate of the vertice
+            y: The y coordinate of the vertice
 
-        :param y: The y coordinate of the vertice
-
-        :returns: Indicate if the vertice is touching the territory"""
+        Returns:
+            Indicate if the vertice is touching the territory"""
         for i, j in self._board.around(x, y):
             if (i, j) in self._vertices:
                 return True
@@ -148,13 +155,13 @@ class Territory:
     def includes(self, x: int, y: int, color: Optional[Color] = None) -> bool:
         """Checks if a vertice is included in the territory
 
-        :param x: The x coordinate of the vertice
+        Args:
+            x: The x coordinate of the vertice
+            y: The y coordinate of the vertice
+            color: The color of the targeted vertice
 
-        :param y: The y coordinate of the vertice
-
-        :param color: The color of the targeted vertice
-
-        :returns: Indicates if the vertice is included or not"""
+        Returns:
+             Indicates if the vertice is included or not"""
         return (color is None or color is self._color) and (x, y) in self._vertices
 
     def _update(self, x: int, y: int, color: Color) -> None:
@@ -192,7 +199,8 @@ class Territory:
     def freedom(self) -> list[tuple[int, int]]:
         """Calculate the freedom of the territory, i.e. the vertices where it can expend
 
-        :returns: The list of available vertices to expend the territory"""
+        Returns:
+            The list of available vertices to expend the territory"""
         return self._freedom
 
     def _hypothetical_freedom(self,

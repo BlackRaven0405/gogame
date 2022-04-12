@@ -2,6 +2,7 @@ from enum import Enum
 
 
 class Color(Enum):
+    """Specify the color of a vertice"""
     Empty = 0
     Black = 1
     White = 2

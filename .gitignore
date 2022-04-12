@@ -5,3 +5,4 @@ local_t.py
 build
 dist
 gogame.egg-info/
+*.pyc

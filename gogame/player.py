@@ -33,9 +33,9 @@ class Player(ABC):
     This class has to be overridden to implement the :func:`play()` method"""
     def __init__(self, name: Optional[str] = None, color: Optional[Color] = None):
         """
-        :param name: The name of the player (only used to identify it)
-
-        :param color: The color the player will player, if set to None, it's automatically set by the board
+        Args:
+            name: The name of the player (only used to identify it)
+            color: The color the player will player, if set to None, it's automatically set by the board
         """
         self._in_game: bool = False
         self._board: Optional[Board] = None
