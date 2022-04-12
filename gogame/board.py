@@ -241,7 +241,7 @@ class Board:
             max_turn: The maximum number of move before ending the game
             max_duration: The maximum number of seconds before ending the game
 
-        Raises
+        Raises:
             ValueError: Not enough players to start the game
             TypeError: A player returns an invalid move type
 
@@ -315,7 +315,7 @@ class Board:
         Args:
             color: The color of the move to play
 
-        Raises
+        Raises:
             ValueError: It's the wrong player
 
         Returns:

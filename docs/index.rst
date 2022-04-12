@@ -11,8 +11,6 @@ Enums
 ~~~~~
 .. autoclass:: Color
 
-   Specify the color of a vertice
-
    :bool(color):
       Returns False if color is Empty, True otherwise
 
