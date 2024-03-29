@@ -70,3 +70,5 @@ Indices and tables
 * :ref:`search`
 
 
+`Other Project <https://doc.crowbots.shop>`_
+
